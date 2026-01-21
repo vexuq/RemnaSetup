@@ -1,10 +1,15 @@
 #!/bin/bash
 
+# =========================
+# Common includes
+# =========================
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
-# Load pinned digests for clone install
+# =========================
+# Load pinned versions (clone install)
+# =========================
 LOCK_FILE="/opt/remnasetup/data/versions.lock"
 if [ -f "$LOCK_FILE" ]; then
     # shellcheck disable=SC1090
@@ -16,11 +21,16 @@ fi
 REINSTALL_PANEL=false
 REINSTALL_CADDY=false
 
+# =========================
+# Checks
+# =========================
 check_panel() {
     if [ -f "/opt/remnawave/docker-compose.yml" ] || [ -f "/opt/remnawave/.env" ]; then
         info "$(get_string install_full_detected)"
         question "$(get_string install_full_reinstall)"
-        [[ "$REPLY" =~ ^[Yy]$ ]] || return
+        if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+            return
+        fi
         cd /opt/remnawave && docker compose down || true
         docker volume rm remnawave-db-data remnawave-redis-data 2>/dev/null || true
         rm -f /opt/remnawave/docker-compose.yml /opt/remnawave/.env
@@ -34,7 +44,9 @@ check_caddy() {
     if [ -d "/opt/remnawave/caddy" ]; then
         info "$(get_string install_full_caddy_detected)"
         question "$(get_string install_full_caddy_reinstall)"
-        [[ "$REPLY" =~ ^[Yy]$ ]] || return
+        if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+            return
+        fi
         cd /opt/remnawave/caddy && docker compose down 2>/dev/null || true
         rm -rf /opt/remnawave/caddy
         REINSTALL_CADDY=true
@@ -50,6 +62,9 @@ install_docker() {
     fi
 }
 
+# =========================
+# Helpers
+# =========================
 generate_64() { openssl rand -hex 64; }
 generate_24() { openssl rand -hex 24; }
 generate_login() { tr -dc 'a-zA-Z' < /dev/urandom | head -c 15; }
@@ -68,6 +83,9 @@ apply_pinned_images() {
     fi
 }
 
+# =========================
+# Install panel
+# =========================
 install_panel() {
     mkdir -p /opt/remnawave
     cd /opt/remnawave || exit 1
@@ -101,6 +119,9 @@ install_panel() {
     docker compose up -d
 }
 
+# =========================
+# Install caddy
+# =========================
 install_caddy() {
     mkdir -p /opt/remnawave/caddy
     cd /opt/remnawave/caddy || exit 1
@@ -114,6 +135,9 @@ install_caddy() {
     docker compose up -d
 }
 
+# =========================
+# Main
+# =========================
 main() {
     check_panel
     check_caddy
@@ -139,7 +163,7 @@ main() {
     [ "$REINSTALL_CADDY" = true ] && install_caddy
 
     success "$(get_string install_full_complete)"
-    read -n 1 -s -r -p "$(get_string install_full_press_key")"
+    read -n 1 -s -r -p "$(get_string install_full_press_key)"
 }
 
 main
