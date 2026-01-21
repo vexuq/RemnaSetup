@@ -4,6 +4,15 @@ source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
+# ----------------------------
+# Versions lock (clone mode)
+# ----------------------------
+LOCK_FILE="/opt/remnasetup/data/versions.lock"
+if [ -f "$LOCK_FILE" ]; then
+    # shellcheck disable=SC1090
+    source "$LOCK_FILE"
+fi
+
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
         return 0
@@ -591,6 +600,16 @@ install_caddy() {
     success "$(get_string "install_full_node_caddy_installed_success")"
 }
 
+# ----------------------------
+# Apply pinned image version
+# ----------------------------
+apply_remnanode_image_pin() {
+    if [ -n "$REMNANODE_IMAGE" ]; then
+        sed -i -E "s|image:[[:space:]]*remnawave/node[^[:space:]]*|image: ${REMNANODE_IMAGE}|g" docker-compose.yml
+        info "Pinned RemnaNode image: $REMNANODE_IMAGE"
+    fi
+}
+
 install_remnanode() {
     info "$(get_string "install_full_node_installing_remnanode")"
     chmod -R 777 /opt
@@ -615,6 +634,9 @@ install_remnanode() {
 
     sed -i "s|\$NODE_PORT|$NODE_PORT|g" docker-compose.yml
     sed -i "s|\$SECRET_KEY|$SECRET_KEY|g" docker-compose.yml
+
+    # Apply pinned version if versions.lock exists
+    apply_remnanode_image_pin
 
     docker compose up -d || {
         error "$(get_string "install_full_node_remnanode_error")"
