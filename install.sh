@@ -34,7 +34,7 @@ cd "$TEMP_DIR" || exit 1
 
 echo "Downloading RemnaSetup..."
 echo "Загрузка RemnaSetup..."
-curl -L https://github.com/Capybara-z/RemnaSetup/archive/refs/heads/main.zip -o remnasetup.zip
+curl -L https://github.com/vexuq/RemnaSetup/archive/refs/heads/main.zip -o remnasetup.zip
 
 if [ ! -f remnasetup.zip ]; then
     echo "Error: Failed to download archive"
