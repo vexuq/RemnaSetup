@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛸 ORBITAL STATION AURORA | Аварийный протокол</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --space-black: #030810;
+            --deep-space: #0a1628;
+            --nebula-blue: #1e3a5f;
+            --hologram-cyan: #00ffff;
+            --hologram-blue: #00aaff;
+            --alert-orange: #ff6600;
+            --alert-red: #ff3333;
+            --plasma-purple: #9933ff;
+            --star-white: #e8f4ff;
+            --oxygen-green: #00ff88;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--space-black);
+            font-family: 'Exo 2', sans-serif;
+            color: var(--star-white);
+            overflow-x: hidden;
+        }
+
+        /* Starfield background */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(30, 58, 95, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(153, 51, 255, 0.2) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 170, 255, 0.1) 0%, transparent 60%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Holographic scan effect */
+        .holo-scan {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(0, 255, 255, 0.03) 50%,
+                transparent 100%
+            );
+            height: 200%;
+            animation: holoScan 4s linear infinite;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @keyframes holoScan {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0%); }
+        }
+
+        /* Alert strips */
+        .alert-strip {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 35px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--alert-orange) 0px,
+                var(--alert-orange) 30px,
+                var(--space-black) 30px,
+                var(--space-black) 60px
+            );
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: stripMove 2s linear infinite;
+        }
+
+        .alert-strip.top { top: 0; }
+        .alert-strip.bottom { bottom: 0; animation-direction: reverse; }
+
+        @keyframes stripMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 0; }
+        }
+
+        .alert-text {
+            background: var(--space-black);
+            padding: 5px 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--alert-orange);
+            text-transform: uppercase;
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 15px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: linear-gradient(145deg, 
+                rgba(10, 22, 40, 0.9), 
+                rgba(3, 8, 16, 0.95)
+            );
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(90deg, transparent 49%, rgba(0, 255, 255, 0.1) 50%, transparent 51%),
+                linear-gradient(0deg, transparent 49%, rgba(0, 255, 255, 0.1) 50%, transparent 51%);
+            background-size: 30px 30px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Card header */
+        .card-header {
+            background: linear-gradient(90deg, 
+                rgba(0, 255, 255, 0.1), 
+                rgba(153, 51, 255, 0.1)
+            );
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .station-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--hologram-cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .station-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            color: var(--alert-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-blink {
+            width: 8px;
+            height: 8px;
+            background: var(--alert-orange);
+            border-radius: 50%;
+            animation: alertBlink 0.5s ease-in-out infinite;
+        }
+
+        @keyframes alertBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Card content */
+        .card-content {
+            padding: 25px;
+        }
+
+        /* Header section */
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .icon-row {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6));
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            color: var(--star-white);
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--alert-orange);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Systems grid */
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .system-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 12px;
+            position: relative;
+        }
+
+        .system-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--hologram-cyan), transparent);
+        }
+
+        .system-box.warning::before {
+            background: linear-gradient(90deg, var(--alert-orange), transparent);
+        }
+
+        .system-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .system-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--hologram-cyan);
+        }
+
+        .system-box.warning .system-name { color: var(--alert-orange); }
+
+        .system-status {
+            font-size: 0.55rem;
+            padding: 2px 6px;
+            text-transform: uppercase;
+        }
+
+        .system-status.online {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--oxygen-green);
+            border: 1px solid var(--oxygen-green);
+        }
+
+        .system-status.warning {
+            background: rgba(255, 102, 0, 0.2);
+            color: var(--alert-orange);
+            border: 1px solid var(--alert-orange);
+        }
+
+        .system-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--star-white);
+        }
+
+        .system-box.warning .system-value { color: var(--alert-orange); }
+
+        /* Timer section */
+        .timer-section {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(180deg, rgba(153, 51, 255, 0.1), transparent);
+            border: 1px solid rgba(153, 51, 255, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .timer-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--plasma-purple);
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--hologram-cyan);
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            letter-spacing: 5px;
+        }
+
+        /* Footer */
+        .card-footer {
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: var(--hologram-blue);
+        }
+
+        /* ==================== GAME SECTION ==================== */
+        .game-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-header {
+            background: linear-gradient(90deg, 
+                rgba(0, 255, 136, 0.1), 
+                rgba(0, 255, 255, 0.1)
+            );
+        }
+
+        .game-title {
+            color: var(--oxygen-green);
+        }
+
+        .game-content {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--hologram-blue);
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--oxygen-green);
+        }
+
+        /* Game canvas */
+        .game-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        #gameCanvas {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 136, 0.4);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 136, 0.2),
+                inset 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(3, 8, 16, 0.9);
+            opacity: 1;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .game-overlay.hidden {
+            opacity: 0;
+        }
+
+        .game-overlay-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--oxygen-green);
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px var(--oxygen-green);
+        }
+
+        .game-overlay-subtitle {
+            font-size: 0.8rem;
+            color: var(--hologram-cyan);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.05));
+            border: 2px solid var(--oxygen-green);
+            color: var(--oxygen-green);
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+            background: rgba(0, 255, 136, 0.5);
+        }
+
+        .control-btn.space-btn {
+            width: 160px;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        /* Game messages */
+        .game-message {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            font-size: 0.75rem;
+            color: var(--hologram-cyan);
+            width: 100%;
+        }
+
+        .game-message.game-over {
+            border-color: var(--alert-red);
+            color: var(--alert-red);
+        }
+
+        .game-message.win {
+            border-color: var(--oxygen-green);
+            color: var(--oxygen-green);
+        }
+
+        /* Planet decoration */
+        .planet {
+            position: fixed;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                #1a4a7a 0%, 
+                #0d2840 50%, 
+                #051525 100%
+            );
+            box-shadow: 
+                inset -30px -30px 60px rgba(0, 0, 0, 0.8),
+                0 0 60px rgba(0, 170, 255, 0.2);
+            z-index: 0;
+            opacity: 0.3;
+            bottom: -100px;
+            right: -80px;
+        }
+
+        /* Floating status */
+        .floating-status {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(3, 8, 16, 0.95);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            padding: 10px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--oxygen-green);
+            border-radius: 50%;
+            animation: statusPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .status-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--star-white);
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .title { font-size: 1.2rem; }
+            .timer { font-size: 2rem; }
+            .systems-grid { grid-template-columns: 1fr; }
+            .control-btn { width: 45px; height: 45px; }
+            .control-btn.space-btn { width: 140px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="starfield"></div>
+    <div class="stars" id="stars"></div>
+    <div class="holo-scan"></div>
+    <div class="planet"></div>
+    
+    <div class="alert-strip top">
+        <span class="alert-text">⚠️ АВАРИЙНЫЙ ПРОТОКОЛ АКТИВИРОВАН ⚠️</span>
+    </div>
+    <div class="alert-strip bottom">
+        <span class="alert-text">⚠️ EMERGENCY PROTOCOL ACTIVE ⚠️</span>
+    </div>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- Main Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="station-name">
+                        <span>🛸</span>
+                        <span>STATION AURORA</span>
+                    </div>
+                    <div class="station-status">
+                        <div class="status-blink"></div>
+                        <span>ALERT</span>
+                    </div>
+                </div>
+                
+                <div class="card-content">
+                    <div class="header">
+                        <div class="icon-row">🚀</div>
+                        <h1 class="title">Системный сбой</h1>
+                        <p class="subtitle">Аварийная перезагрузка</p>
+                    </div>
+
+                    <div class="systems-grid">
+                        <div class="system-box">
+                            <div class="system-header">
+                                <span class="system-name">🔋 Реактор</span>
+                                <span class="system-status online">Online</span>
+                            </div>
+                            <div class="system-value" id="reactor">87%</div>
+                        </div>
+                        <div class="system-box warning">
+                            <div class="system-header">
+                                <span class="system-name">🛡️ Щиты</span>
+                                <span class="system-status warning">Warning</span>
+                            </div>
+                            <div class="system-value" id="shields">34%</div>
+                        </div>
+                        <div class="system-box">
+                            <div class="system-header">
+                                <span class="system-name">💨 Кислород</span>
+                                <span class="system-status online">Online</span>
+                            </div>
+                            <div class="system-value">98%</div>
+                        </div>
+                        <div class="system-box">
+                            <div class="system-header">
+                                <span class="system-name">👥 Экипаж</span>
+                                <span class="system-status online">Online</span>
+                            </div>
+                            <div class="system-value">847</div>
+                        </div>
+                    </div>
+
+                    <div class="timer-section">
+                        <div class="timer-label">⏱️ До восстановления</div>
+                        <div class="timer" id="timer">05:00</div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <span>📍 Орбита: 408 км</span>
+                    <span id="datetime">--:--:--</span>
+                </div>
+            </div>
+
+            <!-- Game Card -->
+            <div class="card game-card">
+                <div class="card-header game-header">
+                    <div class="station-name game-title">
+                        <span>🎮</span>
+                        <span>SPACE SNAKE</span>
+                    </div>
+                    <div class="station-status">
+                        <span style="color: var(--oxygen-green);">MINI-GAME</span>
+                    </div>
+                </div>
+                
+                <div class="game-content">
+                    <div class="game-stats">
+                        <div class="stat">
+                            <div class="stat-label">Score</div>
+                            <div class="stat-value" id="score">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">High Score</div>
+                            <div class="stat-value" id="highScore">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Level</div>
+                            <div class="stat-value" id="level">1</div>
+                        </div>
+                    </div>
+
+                    <div class="game-container">
+                        <canvas id="gameCanvas" width="280" height="280"></canvas>
+                        <div class="game-overlay" id="gameOverlay">
+                            <div class="game-overlay-title">🐍 SPACE SNAKE</div>
+                            <div class="game-overlay-subtitle">
+                                Собирай энергию ⚡<br>
+                                для станции!<br><br>
+                                Нажми START
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="controls-row">
+                            <button class="control-btn" id="btnUp">▲</button>
+                        </div>
+                        <div class="controls-row">
+                            <button class="control-btn" id="btnLeft">◄</button>
+                            <button class="control-btn" id="btnDown">▼</button>
+                            <button class="control-btn" id="btnRight">►</button>
+                        </div>
+                        <div class="controls-row">
+                            <button class="control-btn space-btn" id="btnStart">START</button>
+                        </div>
+                    </div>
+
+                    <div class="game-message" id="gameMessage">
+                        Клавиши: ← ↑ ↓ → или WASD
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-status">
+        <div class="status-indicator"></div>
+        <span class="status-label">BACKUP SYSTEMS: ACTIVE</span>
+    </div>
+
+    <script>
+        // ==================== STARS ====================
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (2 + Math.random() * 2) + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // ==================== TIMER ====================
+        let timeLeft = 300;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            if (timeLeft > 0) timeLeft--;
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('datetime').textContent = 
+                `2157.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        }
+
+        function updateStats() {
+            document.getElementById('reactor').textContent = (80 + Math.floor(Math.random() * 15)) + '%';
+            document.getElementById('shields').textContent = (30 + Math.floor(Math.random() * 10)) + '%';
+        }
+
+        // ==================== SNAKE GAME ====================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 20;
+        const gridCount = canvas.width / gridSize;
+
+        let snake = [];
+        let food = {};
+        let direction = { x: 1, y: 0 };
+        let nextDirection = { x: 1, y: 0 };
+        let score = 0;
+        let highScore = 0;
+        let level = 1;
+        let gameRunning = false;
+        let gameLoop = null;
+        let speed = 150;
+
+        const overlay = document.getElementById('gameOverlay');
+        const messageEl = document.getElementById('gameMessage');
+
+        function initGame() {
+            snake = [
+                { x: 5, y: 7 },
+                { x: 4, y: 7 },
+                { x: 3, y: 7 }
+            ];
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
+            score = 0;
+            level = 1;
+            speed = 150;
+            updateScore();
+            spawnFood();
+        }
+
+        function spawnFood() {
+            do {
+                food = {
+                    x: Math.floor(Math.random() * gridCount),
+                    y: Math.floor(Math.random() * gridCount)
+                };
+            } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
+        }
+
+        function draw() {
+            // Clear
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= gridCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * gridSize, 0);
+                ctx.lineTo(i * gridSize, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * gridSize);
+                ctx.lineTo(canvas.width, i * gridSize);
+                ctx.stroke();
+            }
+
+            // Food (energy)
+            ctx.fillStyle = '#ffff00';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(
+                food.x * gridSize + gridSize / 2,
+                food.y * gridSize + gridSize / 2,
+                gridSize / 2 - 2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Draw ⚡ on food
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⚡', food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2);
+
+            // Snake
+            snake.forEach((segment, index) => {
+                const isHead = index === 0;
+                
+                // Glow
+                if (isHead) {
+                    ctx.shadowColor = '#00ff88';
+                    ctx.shadowBlur = 15;
+                }
+
+                // Gradient for body
+                const gradient = ctx.createLinearGradient(
+                    segment.x * gridSize,
+                    segment.y * gridSize,
+                    segment.x * gridSize + gridSize,
+                    segment.y * gridSize + gridSize
+                );
+                
+                if (isHead) {
+                    gradient.addColorStop(0, '#00ff88');
+                    gradient.addColorStop(1, '#00cc66');
+                } else {
+                    const alpha = 1 - (index / snake.length) * 0.5;
+                    gradient.addColorStop(0, `rgba(0, 255, 136, ${alpha})`);
+                    gradient.addColorStop(1, `rgba(0, 200, 100, ${alpha})`);
+                }
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(
+                    segment.x * gridSize + 1,
+                    segment.y * gridSize + 1,
+                    gridSize - 2,
+                    gridSize - 2
+                );
+
+                // Head eyes
+                if (isHead) {
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#000';
+                    const eyeOffset = 4;
+                    const eyeSize = 3;
+                    
+                    if (direction.x === 1) {
+                        ctx.fillRect(segment.x * gridSize + gridSize - 6, segment.y * gridSize + 5, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * gridSize + gridSize - 6, segment.y * gridSize + gridSize - 8, eyeSize, eyeSize);
+                    } else if (direction.x === -1) {
+                        ctx.fillRect(segment.x * gridSize + 3, segment.y * gridSize + 5, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * gridSize + 3, segment.y * gridSize + gridSize - 8, eyeSize, eyeSize);
+                    } else if (direction.y === 1) {
+                        ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + gridSize - 6, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * gridSize + gridSize - 8, segment.y * gridSize + gridSize - 6, eyeSize, eyeSize);
+                    } else {
+                        ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + 3, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * gridSize + gridSize - 8, segment.y * gridSize + 3, eyeSize, eyeSize);
+                    }
+                }
+
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function update() {
+            direction = { ...nextDirection };
+            
+            const head = { 
+                x: snake[0].x + direction.x, 
+                y: snake[0].y + direction.y 
+            };
+
+            // Wall collision
+            if (head.x < 0 || head.x >= gridCount || head.y < 0 || head.y >= gridCount) {
+                gameOver();
+                return;
+            }
+
+            // Self collision
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            snake.unshift(head);
+
+            // Food collision
+            if (head.x === food.x && head.y === food.y) {
+                score += 10 * level;
+                updateScore();
+                spawnFood();
+
+                // Level up every 50 points
+                if (score > 0 && score % 50 === 0) {
+                    level++;
+                    speed = Math.max(50, speed - 15);
+                    document.getElementById('level').textContent = level;
+                    restartLoop();
+                }
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            if (score > highScore) {
+                highScore = score;
+                document.getElementById('highScore').textContent = highScore;
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            messageEl.textContent = `💥 GAME OVER! Очки: ${score}`;
+            messageEl.className = 'game-message game-over';
+            
+            setTimeout(() => {
+                overlay.classList.remove('hidden');
+                overlay.querySelector('.game-overlay-title').textContent = '💥 GAME OVER';
+                overlay.querySelector('.game-overlay-subtitle').innerHTML = 
+                    `Очки: ${score}<br>Уровень: ${level}<br><br>Нажми START`;
+            }, 500);
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            
+            initGame();
+            gameRunning = true;
+            overlay.classList.add('hidden');
+            messageEl.textContent = 'Собирай энергию ⚡ для станции!';
+            messageEl.className = 'game-message';
+            
+            draw();
+            restartLoop();
+        }
+
+        function restartLoop() {
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(() => {
+                if (gameRunning) update();
+            }, speed);
+        }
+
+        function setDirection(x, y) {
+            // Prevent reverse
+            if (direction.x === -x && direction.y === -y) return;
+            if (x !== 0 && direction.x !== 0) return;
+            if (y !== 0 && direction.y !== 0) return;
+            
+            nextDirection = { x, y };
+        }
+
+        // Controls
+        document.getElementById('btnUp').addEventListener('click', () => setDirection(0, -1));
+        document.getElementById('btnDown').addEventListener('click', () => setDirection(0, 1));
+        document.getElementById('btnLeft').addEventListener('click', () => setDirection(-1, 0));
+        document.getElementById('btnRight').addEventListener('click', () => setDirection(1, 0));
+        document.getElementById('btnStart').addEventListener('click', startGame);
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    setDirection(0, -1);
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    setDirection(0, 1);
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    setDirection(-1, 0);
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    setDirection(1, 0);
+                    e.preventDefault();
+                    break;
+                case ' ':
+                case 'Enter':
+                    if (!gameRunning) startGame();
+                    e.preventDefault();
+                    break;
+            }
+        });
+
+        // Touch prevention for buttons
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                btn.click();
+            });
+        });
+
+        // ==================== INIT ====================
+        function init() {
+            createStars();
+            updateDateTime();
+            draw();
+            
+            setInterval(updateTimer, 1000);
+            setInterval(updateDateTime, 1000);
+            setInterval(updateStats, 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
