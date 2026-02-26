@@ -4,6 +4,15 @@ source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
+# Load pinned versions
+LOCK_FILE="/opt/remnasetup/data/versions.lock"
+if [ -f "$LOCK_FILE" ]; then
+    # shellcheck disable=SC1090
+    source "$LOCK_FILE"
+else
+    warn "versions.lock not found — images will be taken from template"
+fi
+
 REINSTALL_SUBSCRIPTION=false
 INSTALL_WITH_PANEL=false
 
@@ -102,6 +111,17 @@ update_caddyfile_with_subscription() {
 }
 
 
+apply_pinned_subscription_image() {
+    if [ -n "${REMNAWAVE_SUBSCRIPTION_IMAGE:-}" ]; then
+        info "Applying pinned subscription image digest from versions.lock"
+        sed -i \
+          -e "s|^\([[:space:]]*image:[[:space:]]*\)remnawave/subscription-page.*$|\1${REMNAWAVE_SUBSCRIPTION_IMAGE}|g" \
+          docker-compose.yml
+    else
+        warn "Pinned subscription image variable not set — using template image."
+    fi
+}
+
 install_subscription() {
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
         info "$(get_string install_subscription_installing)"
@@ -110,6 +130,8 @@ install_subscription() {
 
         cp "/opt/remnasetup/data/docker/subscription.env" .env
         cp "/opt/remnasetup/data/docker/subscription-compose.yml" docker-compose.yml
+
+        apply_pinned_subscription_image
 
         sed -i "s|\$SUB_PORT|$SUB_PORT|g" .env
         sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" .env
